@@ -17,17 +17,20 @@ import WebcamHelper from "./helpers/WebcamHelper";
 import { asyncRequestAnimationFrameMs } from "./helpers/helpers";
 import { RendererCanvas2d } from "./RendererCanvas2d";
 import { MODEL, MODEL_TYPE } from "./params";
+import AppState from "../state";
 
 export type RendererParams = [HTMLVideoElement, Pose[]];
 
 class PoseDetection {
+  private appState: AppState;
   private detector?: PoseDetector;
   private webcamHelper: WebcamHelper;
   private started = false;
   private renderer: RendererCanvas2d;
   private canvas: HTMLCanvasElement;
 
-  constructor() {
+  constructor(appState: AppState) {
+    this.appState = appState;
     this.webcamHelper = new WebcamHelper();
     this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
     this.renderer = new RendererCanvas2d(this.canvas, this.webcamHelper);
@@ -65,14 +68,27 @@ class PoseDetection {
     return poses;
   }
 
+  private updateState(poses: Pose[]) {
+    if (!poses.length) return;
+
+    const pose1 = poses[0];
+    // console.log(pose1.keypoints);
+    const rightHand = pose1.keypoints.find(
+      ({ name }) => name === "right_wrist"
+    );
+    if (!rightHand) return;
+    this.appState.updateState({ rightArm: { x: rightHand.x, y: rightHand.y } });
+  }
+
   private async draw(poses: Pose[]) {
     this.renderer.draw(poses);
   }
 
   private async loop() {
     do {
-      const rendererParams = await this.detect();
-      await this.draw(rendererParams);
+      const poses = await this.detect();
+      await this.draw(poses);
+      this.updateState(poses);
 
       await asyncRequestAnimationFrameMs(100);
     } while (this.started);
