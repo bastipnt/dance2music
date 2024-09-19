@@ -8,7 +8,14 @@ class KeyboardSound {
 
   constructor(appState: AppState) {
     this.appState = appState;
-    this.polySynth = new PolySynth(FMSynth);
+    this.polySynth = new PolySynth(FMSynth, {
+      envelope: {
+        attack: 0.001,
+        sustain: 1,
+        release: 2,
+        decay: 1,
+      },
+    });
   }
 
   init() {
