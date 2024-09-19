@@ -30,7 +30,7 @@ class WebcamHelper {
 
       const selectedDeviceId = this.cameraSelect.selectedOptions[0].value;
 
-      console.log(selectedDeviceId);
+      // console.log(selectedDeviceId);
 
       if (!selectedDeviceId) return;
 

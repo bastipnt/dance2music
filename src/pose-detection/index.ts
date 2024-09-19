@@ -77,7 +77,9 @@ class PoseDetection {
       ({ name }) => name === "right_wrist"
     );
     if (!rightHand) return;
-    this.appState.updateState({ rightArm: { x: rightHand.x, y: rightHand.y } });
+    this.appState.poseState.updateState({
+      rightArm: { x: rightHand.x, y: rightHand.y },
+    });
   }
 
   private async draw(poses: Pose[]) {
